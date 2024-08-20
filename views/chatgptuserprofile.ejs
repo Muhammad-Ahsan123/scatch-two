@@ -1,0 +1,110 @@
+<%- include('./partials/header') %>
+    <div class="bg-gray-100">
+        <!-- Container -->
+        <div class="max-w-6xl mx-auto py-20 px-6">
+
+            <!-- Greeting -->
+            <div class="text-xl font-semibold mb-4">Hello, <%= user.fullname%>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                <!-- Sidebar -->
+                <div class="bg-white p-6 rounded-lg shadow-md md:col-span-1">
+                    <div class="text-lg font-bold mb-4">Manage My Account</div>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-blue-500">My Profile</a></li>
+                        <li><a href="#" class="text-gray-700">Address Book</a></li>
+                        <li><a href="#" class="text-gray-700">My Payment Options</a></li>
+                        <li><a href="#" class="text-gray-700">Daraz Wallet</a></li>
+                    </ul>
+
+                    <div class="text-lg font-bold mt-6 mb-4">My Orders</div>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-700">My Returns</a></li>
+                        <li><a href="#" class="text-gray-700">My Cancellations</a></li>
+                    </ul>
+
+                    <div class="text-lg font-bold mt-6 mb-4">My Reviews</div>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-700">My Wishlist & Followed Stores</a></li>
+                        <li><a href="#" class="text-gray-700">Sell On Daraz</a></li>
+                    </ul>
+                </div>
+
+                <!-- Content Area -->
+                <div class="bg-white p-6 rounded-lg shadow-md md:col-span-3 space-y-6">
+                    <!-- Personal Profile -->
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-bold">Personal Profile</h2>
+                            <a href="#" class="text-blue-500">EDIT</a>
+                        </div>
+                        <div class="mt-2 flex gap-8">
+                            <!-- <div> -->
+                            <p class="font-semibold">
+                                Full Name
+                            </p>
+                            <p>
+                                <%= user.fullname%>
+                            </p>
+                            <!-- </div> -->
+                        </div>
+                        <div class="mt-2 flex gap-16">
+                            <!-- <div> -->
+                            <p class="font-bold">
+                                Email
+                            </p>
+                            <p>
+                                <%= user.email.replace(/(.{1}).+(.{1}@.+)/, "$1*****$2" ) %>
+                            </p>
+                            <!-- </div> -->
+                        </div>
+
+                        <div class="mt-2">
+                            <input type="checkbox" id="marketing-emails" class="mr-2">
+                            <label for="marketing-emails">Receive marketing emails</label>
+                        </div>
+                    </div>
+
+                    <!-- Address Book -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Default Shipping Address -->
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-bold">Address Book</h2>
+                                <a href="#" class="text-blue-500">EDIT</a>
+                            </div>
+                            <div class="mt-2">
+                                <h3 class="font-semibold">DEFAULT SHIPPING ADDRESS</h3>
+                                <p>M Ahsan</p>
+                                <p>house no 110 area 37/a khawaja ajmer colony near khawaja ajmeri masjid Landhi 3
+                                    karachi
+                                </p>
+                                <p>Sindh - Karachi - Landhi - Zamanabad</p>
+                                <p>(+92) 3491823310</p>
+                            </div>
+                        </div>
+
+                        <!-- Default Billing Address -->
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-bold">&nbsp;</h2> <!-- Invisible title for alignment -->
+                            </div>
+                            <div class="mt-2">
+                                <h3 class="font-semibold">DEFAULT BILLING ADDRESS</h3>
+                                <p>M Ahsan</p>
+                                <p>house no 110 area 37/a khawaja ajmer colony near khawaja ajmeri masjid Landhi 3
+                                    karachi
+                                </p>
+                                <p>Sindh - Karachi - Landhi - Zamanabad</p>
+                                <p>(+92) 3491823310</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('./partials/footer') %>
