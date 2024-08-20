@@ -7,7 +7,6 @@ module.exports = async function (req, res , next) {
         req.flash("error", "You need to login first")
         return res.redirect('/owner-login')
     }
-
     try {
         let decodedToken = jwt.verify(req.cookies.admintoken, process.env.JWT_KEY)
         let user = await ownerModel.findOne({ email: decodedToken.email }).select("-password")
@@ -16,5 +15,4 @@ module.exports = async function (req, res , next) {
         req.flash("error", err.message)
         return res.redirect('/owner-login')
     }
-
 }

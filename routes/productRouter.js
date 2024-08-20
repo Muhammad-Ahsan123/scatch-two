@@ -7,10 +7,7 @@ router.get('/', function (req, res) {
     res.send('Product Route')
 })
 router.get('/cart/:productid', async function (req, res) {
-    console.log(req.params.productid);
     const proddetails = await productModel.findOne({ _id: req.params.productid })
-    console.log('prodDetails', proddetails);
-
     res.render('productdetails', { proddetails })
 })
 router.post('/create', upload.single('image'), async function (req, res) {

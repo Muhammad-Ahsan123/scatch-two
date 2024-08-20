@@ -7,13 +7,14 @@ const app = express();
 const productModel = require('./config/mongoose-connection');
 const ownerRouter = require('./routes/ownerRouter');
 const userRouter = require('./routes/userRouter');
-const productRouter = require('./routes/productRouter');
+const productRouter = require('./routes/productRouter');    
 const indexRouter = require('./routes/indexRouter');
 
 require("dotenv").config();
 
 const port = process.env.PORT || 3000;
 
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(expressSession({
@@ -43,7 +44,6 @@ process.on('uncaughtException', (err) => {
     console.error('There was an uncaught error:', err);
     process.exit(1);
 });
-
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     process.exit(1);
