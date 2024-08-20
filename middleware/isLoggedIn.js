@@ -16,5 +16,4 @@ module.exports = async function (req, res , next) {
         req.flash("error", err.message)
         return res.redirect('/')
     }
-
 }

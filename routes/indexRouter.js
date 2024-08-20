@@ -22,6 +22,7 @@ router.get('/shop', isLoggedIn, async function (req, res) {
         res.redirect('/owner/adminpanel');
     }
 });
+
 router.get('/cart', isLoggedIn, async function (req, res) {
     try {
         let success = req.flash("success");
@@ -30,36 +31,15 @@ router.get('/cart', isLoggedIn, async function (req, res) {
         const user = await userModel.findOne({ email: req.user.email })
             .populate({
                 path: 'cart.productId',
-                model: 'product', 
-                select: 'name price discount image brand like', 
+                model: 'product', // This model name should match exactly with the one used in your product model file
+                select: 'name price discount image brand like', // Include 'like' here
             });
 
         if (!user || !user.cart || user.cart.length === 0) {
             console.log('User Cart is empty or undefined');
             return res.render('cart', { user, success, error });
         }
-        res.render('cart', { user, success, error });
-    } catch (error) {
-        console.error('Error fetching cart:', error);
-        res.status(500).send(error.message);
-    }
-});
-router.get('/cart', isLoggedIn, async function (req, res) {
-    try {
-        let success = req.flash("success");
-        let error = req.flash("error");
-        const user = await userModel.findOne({ email: req.user.email })
-            .populate({
-                path: 'cart.productId',
-                model: 'product',
-                select: 'name price discount image brand like'
-            });
 
-        if (!user || !user.cart || user.cart.length === 0) {
-            console.log('User Cart is empty or undefined');
-            return res.render('cart', { user, success, error });
-        }
-    
         console.log('User Cart Data:', user.cart.map(item => item.productId));
         res.render('cart', { user, success, error });
     } catch (error) {
@@ -67,6 +47,8 @@ router.get('/cart', isLoggedIn, async function (req, res) {
         res.status(500).send(error.message);
     }
 });
+
+
 
 
 
@@ -100,10 +82,8 @@ router.get('/addtocart/:id', isLoggedIn, async (req, res) => {
         const existingItem = user.cart.find(item => item.productId.toString() === productObjectId.toString());
 
         if (existingItem) {
-            // If the item already exists, increment its quantity
             existingItem.quantity += 1;
         } else {
-            // Otherwise, add new item to the cart
             user.cart.push({ productId: productObjectId, quantity: 1 });
         }
         await user.save();
@@ -114,6 +94,7 @@ router.get('/addtocart/:id', isLoggedIn, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 router.post('/cart/increment/:productId', isLoggedIn, async (req, res) => {
     const userId = req.user._id; // Assuming user is authenticated
     const productId = req.params.productId;
