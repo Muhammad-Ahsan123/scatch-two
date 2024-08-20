@@ -13,8 +13,10 @@ router.get('/', function (req, res) {
 })
 router.get('/shop', isLoggedIn, async function (req, res) {
     try {
+        console.log('REQUEST USER', req.user);
+
         let success = req.flash("success")
-        const products = await productModel.find(); 
+        const products = await productModel.find(); // Fetch products from the database
         res.render('shop', { products, success });
     } catch (err) {
         console.error('Error fetching products:', err.message);
@@ -23,35 +25,16 @@ router.get('/shop', isLoggedIn, async function (req, res) {
     }
 });
 
+
 router.get('/cart', isLoggedIn, async function (req, res) {
-    try {
-        let success = req.flash("success");
-        let error = req.flash("error");
+    const user = await userModel.findOne({ email: req.user.email }).populate('cart');
+    let error = req.flash("error")
+    let success = req.flash("success")
+    console.log(user.cart);
 
-        const user = await userModel.findOne({ email: req.user.email })
-            .populate({
-                path: 'cart.productId',
-                model: 'product', // This model name should match exactly with the one used in your product model file
-                select: 'name price discount image brand like', // Include 'like' here
-            });
+    res.render('cart', { user, error, success })
 
-        if (!user || !user.cart || user.cart.length === 0) {
-            console.log('User Cart is empty or undefined');
-            return res.render('cart', { user, success, error });
-        }
-
-        console.log('User Cart Data:', user.cart.map(item => item.productId));
-        res.render('cart', { user, success, error });
-    } catch (error) {
-        console.error('Error fetching cart:', error);
-        res.status(500).send(error.message);
-    }
 });
-
-
-
-
-
 router.get('/owner-login', isLoggedIn, async function (req, res) {
     let error = req.flash("error")
     let success = req.flash("success")
@@ -60,14 +43,13 @@ router.get('/owner-login', isLoggedIn, async function (req, res) {
 router.get('/userprofile', isLoggedIn, async function (req, res) {
     let user = await userModel.findOne({ email: req.user.email }).select("-password")
     res.render('chatgptuserprofile', { user })
-
 });
 router.get('/admin', ownerLoggedIn, async function (req, res) {
     let product = await productModel.find()
+
     res.render('admin', { product })
 
 });
-
 
 router.get('/addtocart/:id', isLoggedIn, async (req, res) => {
     console.log('req.user', req.user);
@@ -95,17 +77,47 @@ router.get('/addtocart/:id', isLoggedIn, async (req, res) => {
     }
 });
 
+
+// router.post('/cart/increment/:productId', isLoggedIn, async (req, res) => {
+//     const userId = req.user._id; // Assuming user is authenticated
+//     const productId = req.params.productId;
+//     console.log('userID', userId)
+//     console.log('userID', productId)
+//     res.redirect('/cart');
+//     try {
+//         let user = await userModel.updateOne(
+//             { _id: userId, 'cart.productId': productId },
+//             { $inc: { 'cart.$.quantity': 1 } }
+//         );
+
+//         console.log('user', user);
+//         res.redirect('/cart');
+//     } catch (error) {
+//         console.error('Error incrementing item quantity:', error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 router.post('/cart/increment/:productId', isLoggedIn, async (req, res) => {
-    const userId = req.user._id; // Assuming user is authenticated
+    const userId = req.user._id;
     const productId = req.params.productId;
+    console.log('user', userId);
+
     try {
+        const isValidObjectId = mongoose.Types.ObjectId.isValid(productId);
+        if (!isValidObjectId) {
+            return res.status(400).send('Invalid product ID');
+        }
+
         let user = await userModel.updateOne(
             { _id: userId, 'cart.productId': productId },
             { $inc: { 'cart.$.quantity': 1 } }
         );
+
         res.redirect('/cart');
     } catch (error) {
-        console.error('Error incrementing item quantity:', error);
+        console.error('Error incrementing item quantity:', error.message);
         res.status(500).send('Server Error');
     }
 });
@@ -116,7 +128,11 @@ router.post('/cart/decrement/:productId', isLoggedIn, async (req, res) => {
 
     try {
         const user = await userModel.findById(userId);
+        console.log('user', user);
+
         const cartItem = user.cart.find(item => item.productId.toString() === productId);
+        console.log('cartItem', cartItem);
+
         if (cartItem) {
             if (cartItem.quantity > 1) {
                 await userModel.updateOne(
@@ -142,23 +158,28 @@ router.post('/cart/decrement/:productId', isLoggedIn, async (req, res) => {
 router.post('/cart/delete/:id', isLoggedIn, async (req, res) => {
     const userId = req.user._id; // Assuming the user is authenticated
     const productId = req.params.id;
+
     try {
         const user = await userModel.findById(userId);
+
+        // Remove the item from the cart array
         user.cart = user.cart.filter(item => item.productId.toString() !== productId);
         req.flash('success ', 'Item removed from cart.');
         await user.save();
+        console.log('delete code check')
         req.flash('success', 'Delete Product from Cart Successfully!');
         res.redirect('/cart'); // Redirect to the cart page
     } catch (error) {
         console.error(error);
         req.flash('error', 'There was a problem removing the item from your cart.');
-        res.status(500).redirect('/cart');
+        res.status(500).redirect('/cart'); // Redirect to the cart page with error
     }
 });
 
 router.get('/like/:id', isLoggedIn, async (req, res) => {
     try {
         const product = await productModel.findById(req.params.id);
+
         if (!product) {
             return res.status(404).send('Product not found');
         }
@@ -172,12 +193,14 @@ router.get('/like/:id', isLoggedIn, async (req, res) => {
             await product.save();
             req.flash('success', 'You have liked the product.');
         }
+
         res.redirect('/cart');
     } catch (err) {
         console.error(err);
         res.status(500).send('An error occurred.');
     }
 });
+
 router.get('/logout', logoutUser)
 router.get('/delete', deleteAllProducts)
 

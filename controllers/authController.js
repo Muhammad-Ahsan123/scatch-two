@@ -7,6 +7,7 @@ const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await userModel.findOne({ email: email })
+        console.log('USER', user)
         if (!user) {
             req.flash("error", 'Spagal')
             return res.redirect('/')
@@ -22,12 +23,9 @@ const loginUser = async (req, res) => {
                 return res.redirect('/')
             }
         });
-
     } catch (err) {
         console.log(err.message);
-
     }
-
 }
 
 const registerUser = async (req, res) => {
@@ -61,6 +59,7 @@ const registerUser = async (req, res) => {
     } catch (err) {
         res.send(err.message);
     }
+
 }
 const logoutUser = (req, res) => {
     res.cookie("token", "")
