@@ -12,7 +12,7 @@ const indexRouter = require('./routes/indexRouter');
 
 require("dotenv").config();
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 app.use(express.json());
