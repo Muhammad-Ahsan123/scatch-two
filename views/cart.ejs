@@ -78,7 +78,7 @@
                                                 <!-- Quantity Controls -->
                                                 <div class="flex items-center">
                                                     <form method="POST"
-                                                        action="/cart/decrement/<%= item.productId.id %>"
+                                                        action="/cart/decrement/<%= item.productId.toString %>"
                                                         onsubmit="event.stopPropagation();">
                                                         <button type="submit"
                                                             class="px-2 py-1 text-sm text-gray-500 border border-gray-300 rounded-md">-</button>
@@ -87,11 +87,12 @@
                                                         <%= item.quantity || 1 %>
                                                     </span>
                                                     <form method="POST"
-                                                        action="/cart/increment/<%= item.productId.id %>"
+                                                        action="/cart/increment/<%= item.productId.toString() %>"
                                                         onsubmit="event.stopPropagation();">
                                                         <button type="submit"
                                                             class="px-2 py-1 text-sm text-gray-500 border border-gray-300 rounded-md">+</button>
                                                     </form>
+
                                                 </div>
                                     </a>
 
