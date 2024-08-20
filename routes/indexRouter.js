@@ -25,16 +25,33 @@ router.get('/shop', isLoggedIn, async function (req, res) {
     }
 });
 
-
 router.get('/cart', isLoggedIn, async function (req, res) {
-    const user = await userModel.findOne({ email: req.user.email }).populate('cart');
-    let error = req.flash("error")
-    let success = req.flash("success")
-    console.log(user.cart);
+    try {
+        let success = req.flash("success");
+        let error = req.flash("error");
 
-    res.render('cart', { user, error, success })
+        const user = await userModel.findOne({ email: req.user.email })
+            .populate({
+                path: 'cart.productId',
+                model: 'product', // This model name should match exactly with the one used in your product model file
+                select: 'name price discount image brand like', // Include 'like' here
+            });
 
+        if (!user || !user.cart || user.cart.length === 0) {
+            console.log('User Cart is empty or undefined');
+            return res.render('cart', { user, success, error });
+        }
+
+        console.log('User Cart Data:', user.cart.map(item => item.productId));
+        res.render('cart', { user, success, error });
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+        res.status(500).send(error.message);
+    }
 });
+
+
+
 router.get('/owner-login', isLoggedIn, async function (req, res) {
     let error = req.flash("error")
     let success = req.flash("success")
@@ -78,46 +95,19 @@ router.get('/addtocart/:id', isLoggedIn, async (req, res) => {
 });
 
 
-// router.post('/cart/increment/:productId', isLoggedIn, async (req, res) => {
-//     const userId = req.user._id; // Assuming user is authenticated
-//     const productId = req.params.productId;
-//     console.log('userID', userId)
-//     console.log('userID', productId)
-//     res.redirect('/cart');
-//     try {
-//         let user = await userModel.updateOne(
-//             { _id: userId, 'cart.productId': productId },
-//             { $inc: { 'cart.$.quantity': 1 } }
-//         );
-
-//         console.log('user', user);
-//         res.redirect('/cart');
-//     } catch (error) {
-//         console.error('Error incrementing item quantity:', error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
 router.post('/cart/increment/:productId', isLoggedIn, async (req, res) => {
-    const userId = req.user._id;
+    const userId = req.user._id; // Assuming user is authenticated
     const productId = req.params.productId;
-    console.log('user', userId);
-
     try {
-        const isValidObjectId = mongoose.Types.ObjectId.isValid(productId);
-        if (!isValidObjectId) {
-            return res.status(400).send('Invalid product ID');
-        }
-
         let user = await userModel.updateOne(
             { _id: userId, 'cart.productId': productId },
             { $inc: { 'cart.$.quantity': 1 } }
         );
 
+        console.log('user', user);
         res.redirect('/cart');
     } catch (error) {
-        console.error('Error incrementing item quantity:', error.message);
+        console.error('Error incrementing item quantity:', error);
         res.status(500).send('Server Error');
     }
 });
