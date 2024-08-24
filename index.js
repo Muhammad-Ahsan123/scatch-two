@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(expressSession({
     resave: false,
     saveUninitialized: false,
-    secret: "ahsan"
+    secret: process.env.SECRET || "ahsan" // Use environment variable
 }));
 app.use(flash());
 app.use(express.urlencoded({ extended: true }));
